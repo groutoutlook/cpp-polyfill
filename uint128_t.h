@@ -16,7 +16,7 @@ constexpr int countl_zero(T & DATA) {
 }
 
 template <typename T, typename MASK_TYPE = typename remove_const<T>::type>
-constexpr int __countr_zero(T& data) {
+constexpr int countr_zero(T& data) {
     MASK_TYPE mask{ 1 };
     int bits = sizeof(T) * CHAR_BIT;
     int trail = 0;
@@ -29,7 +29,7 @@ constexpr int __countr_zero(T& data) {
 }
 
 template<typename T = uint64_t>
-uint64_t __bit_width(uint64_t x){
+uint64_t bit_width(uint64_t x){
 	return std:: numeric_limits < T > :: digits - countl_zero ( x ) ;
 }
 }
@@ -235,18 +235,30 @@ struct uint128_t
   friend constexpr auto
   __bit_width(const uint128_t x)
   {
-    if (auto w = std::__bit_width(x.hi))
+    if (auto w = std::bit_width(x.hi))
       return w + 64;
     else
-      return std::__bit_width(x.lo);
+      return std::bit_width(x.lo);
   }
 
   friend constexpr auto
+  __countl_zero(const uint128_t x)
+  {
+    auto c = std::countl_zero(x.hi);
+    if (c == 64)
+      return 64 + std::countl_zero(x.lo);
+    else
+      return c;
+  }
+
+
+  
+  friend constexpr auto
   __countr_zero(const uint128_t x)
   {
-    auto c = std::__countr_zero(x.lo);
+    auto c = std::countr_zero(x.lo);
     if (c == 64)
-      return 64 + std::__countr_zero(x.hi);
+      return 64 + std::countr_zero(x.hi);
     else
       return c;
   }
